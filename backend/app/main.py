@@ -1,5 +1,8 @@
 from fastapi import FastAPI
 from app.database.database import db
+from app.api.users.profile import router as profile_router
+from app.api.auth.login import router as login_router
+
 from app.api.auth.register import router as register_router
 
 
@@ -9,6 +12,8 @@ app = FastAPI(
     description="Enterprise AI Workspace Backend"
 )
 app.include_router(register_router)
+app.include_router(login_router)
+app.include_router(profile_router)
 
 @app.get("/")
 def home():
