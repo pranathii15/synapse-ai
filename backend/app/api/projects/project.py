@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from bson import ObjectId
 from datetime import datetime
-
+from fastapi import Query
+from app.schemas.project_schema import ProjectFile
 from app.schemas.project_schema import ProjectCreate
 from app.services.project_service import project_collection
 from app.api.auth.dependencies import get_current_user
@@ -45,6 +46,27 @@ def get_projects(current_user=Depends(get_current_user)):
 
     return projects
 
+@router.get("/projects/search")
+def search_projects(
+    keyword: str = Query(...),
+    current_user=Depends(get_current_user)
+):
+    projects = list(
+        project_collection.find(
+            {
+                "owner": current_user["sub"],
+                "title": {
+                    "$regex": keyword,
+                    "$options": "i"
+                }
+            },
+            {
+                "_id": 0
+            }
+        )
+    )
+
+    return projects
 
 # Update Project
 @router.put("/projects/{project_id}")
@@ -107,4 +129,28 @@ def delete_project(
 
     return {
         "message": "Project Deleted Successfully"
+    }
+
+
+@router.put("/projects/{project_id}/attach")
+def attach_file(
+    project_id: str,
+    file: ProjectFile,
+    current_user=Depends(get_current_user)
+):
+
+    project_collection.update_one(
+        {
+            "_id": ObjectId(project_id),
+            "owner": current_user["sub"]
+        },
+        {
+            "$push": {
+                "files": file.filename
+            }
+        }
+    )
+
+    return {
+        "message": "File Attached Successfully"
     }
