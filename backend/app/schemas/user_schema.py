@@ -1,8 +1,19 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Field
 
-class UserRegister(BaseModel):
-    full_name: str
+class UserCreate(BaseModel):
+
+    name: str = Field(..., min_length=3, max_length=100)
+
     email: EmailStr
-    password: str
-    role: str
-    team: str
+
+    password: str = Field(..., min_length=6)
+
+    role: str = "Software Engineer"
+
+    department: str = "Engineering"
+
+    skills: list[str] = []
+
+    experience: int = 0
+
+    workload: int = 0
