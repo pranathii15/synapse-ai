@@ -17,12 +17,22 @@ from app.api.ai.reminders import router as reminder_router
 from app.api.ai.tomorrow import router as tomorrow_router
 from app.api.ai.notifications import router as notification_router
 from app.api.ai.chat_history import router as chat_history_router
-
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     title="SynapseAI API",
     version="1.0.0",
     description="Enterprise AI Workspace Backend"
+)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:5173",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 app.include_router(register_router)
