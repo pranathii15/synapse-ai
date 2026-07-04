@@ -342,7 +342,7 @@ const initialUserProfile: UserProfile = {
 };
 
 const initialSettings: UserSettings = {
-  darkMode: true,
+  darkMode: false,
   language: 'English',
   notificationsEnabled: true,
   emailDigest: true,

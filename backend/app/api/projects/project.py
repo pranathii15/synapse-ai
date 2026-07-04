@@ -59,12 +59,12 @@ def search_projects(
                     "$regex": keyword,
                     "$options": "i"
                 }
-            },
-            {
-                "_id": 0
             }
         )
     )
+
+    for project in projects:
+        project["_id"] = str(project["_id"])
 
     return projects
 

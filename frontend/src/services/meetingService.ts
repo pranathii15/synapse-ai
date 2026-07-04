@@ -18,9 +18,15 @@ export interface MeetingAnalysis {
 export const meetingService = {
   analyzeTranscript: async (transcript: string): Promise<MeetingAnalysis> => {
     try {
-      const response = await api.post('/meetings/analyze', { transcript });
-      if (response.data) {
-        return response.data;
+      const response = await api.post('/meeting/minutes', { transcript });
+      if (response.data && response.data.meeting_minutes) {
+        // Parse meeting minutes response into MeetingAnalysis format
+        return {
+          title: 'Meeting Summary',
+          minutes: response.data.meeting_minutes,
+          summary: response.data.meeting_minutes,
+          actionItems: []
+        };
       }
     } catch (error) {
       console.warn('Could not analyze transcript via API, using high-fidelity local semantic parser fallback.', error);

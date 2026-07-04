@@ -42,7 +42,7 @@ export const teamService = {
 
   updateWorkload: async (id: string, workload: number): Promise<TeamMember> => {
     try {
-      const response = await api.put(`/teams/${id}/workload`, { workload });
+      const response = await api.put(`/teams/${id}`, { current_workload: workload });
       if (response.data) {
         const list = getTeam();
         const idx = list.findIndex(m => m.id === id);

@@ -1,97 +1,91 @@
 import { api } from '../lib/api';
-import { Project } from '../types';
-import { getProjects, saveProjects } from './mockDb';
+import { Project, ProjectPriority, ProjectStatus } from '../types';
+
+const mapBackendStatus = (status: string | undefined): ProjectStatus => {
+  if (!status) return 'Planning';
+  const normalized = status.toLowerCase();
+  if (normalized === 'active' || normalized === 'in progress') return 'In Progress';
+  if (normalized === 'completed') return 'Completed';
+  if (normalized === 'review') return 'Review';
+  if (normalized === 'planning') return 'Planning';
+  return 'In Progress';
+};
+
+const mapBackendProject = (project: any): Project => ({
+  id: project._id || project.id || '',
+  name: project.title || project.name || 'Untitled Project',
+  description: project.description || '',
+  status: mapBackendStatus(project.status),
+  priority: (project.priority || 'Medium') as ProjectPriority,
+  progress: Number(project.progress ?? 0),
+  teamSize: Number(project.teamSize ?? 3),
+  tasksCount: Number(project.tasksCount ?? 0),
+  completedTasks: Number(project.completedTasks ?? 0),
+  dueDate: project.dueDate || '',
+  category: project.category || 'General',
+  aiSummary: project.aiSummary || `Project ${project.title || project.name || ''} was loaded from the backend.`
+});
 
 export const projectService = {
   getProjects: async (): Promise<Project[]> => {
-    try {
-      const response = await api.get('/projects');
-      if (Array.isArray(response.data)) {
-        saveProjects(response.data);
-        return response.data;
-      }
-      return getProjects();
-    } catch (error) {
-      console.warn('Could not fetch projects via API, falling back to local database.', error);
-      return getProjects();
-    }
+    const response = await api.get('/projects');
+    const data = Array.isArray(response.data) ? response.data : [];
+    return data.map(mapBackendProject);
   },
 
   createProject: async (project: Omit<Project, 'id' | 'progress' | 'completedTasks' | 'aiSummary'>): Promise<Project> => {
-    try {
-      const response = await api.post('/projects', project);
-      if (response.data) {
-        const list = getProjects();
-        list.push(response.data);
-        saveProjects(list);
-        return response.data;
-      }
-    } catch (error) {
-      console.warn('Could not create project via API, creating locally instead.', error);
-    }
-    
-    // Fallback logic
-    const list = getProjects();
-    const newProject: Project = {
-      ...project,
-      id: 'p_' + Math.random().toString(36).substr(2, 9),
-      progress: 0,
-      completedTasks: 0,
-      aiSummary: `AI Summary Drafted for ${project.name}: Project is currently in planning phase. Required skills and initial deliverables have been identified. Active recommendation vectors have been indexed.`
+    const payload = {
+      title: project.name,
+      description: project.description,
     };
-    list.push(newProject);
-    saveProjects(list);
-    return newProject;
+
+    const response = await api.post('/projects', payload);
+    const createdId = response.data?.project_id;
+
+    return {
+      id: createdId || `p_${Math.random().toString(36).slice(2, 11)}`,
+      name: project.name,
+      description: project.description,
+      status: mapBackendStatus(project.status),
+      priority: project.priority,
+      progress: 0,
+      teamSize: project.teamSize,
+      tasksCount: project.tasksCount,
+      completedTasks: 0,
+      dueDate: project.dueDate,
+      category: project.category,
+      aiSummary: `Project ${project.name} was created successfully.`
+    };
   },
 
   updateProject: async (id: string, updates: Partial<Project>): Promise<Project> => {
-    try {
-      const response = await api.put(`/projects/${id}`, updates);
-      if (response.data) {
-        const list = getProjects();
-        const index = list.findIndex(p => p.id === id);
-        if (index !== -1) {
-          list[index] = response.data;
-          saveProjects(list);
-        }
-        return response.data;
-      }
-    } catch (error) {
-      console.warn(`Could not update project ${id} via API, applying local update fallback.`, error);
-    }
+    const payload: { title?: string; description?: string } = {};
+    if (updates.name) payload.title = updates.name;
+    if (updates.description) payload.description = updates.description;
 
-    const list = getProjects();
-    const index = list.findIndex(p => p.id === id);
-    if (index === -1) throw new Error('Project not found');
-    const updated = { ...list[index], ...updates };
-    list[index] = updated;
-    saveProjects(list);
+    await api.put(`/projects/${id}`, payload);
+
+    const projects = await projectService.getProjects();
+    const updated = projects.find((project) => project.id === id);
+    if (!updated) {
+      throw new Error('Updated project not found');
+    }
     return updated;
   },
 
   deleteProject: async (id: string): Promise<void> => {
-    try {
-      await api.delete(`/projects/${id}`);
-    } catch (error) {
-      console.warn(`Could not delete project ${id} via API, performing local delete fallback.`, error);
-    }
-    const list = getProjects();
-    const filtered = list.filter(p => p.id !== id);
-    saveProjects(filtered);
+    await api.delete(`/projects/${id}`);
   },
 
-  getAiSummary: async (id: string): Promise<string> => {
-    try {
-      const response = await api.post(`/projects/${id}/summary`);
-      if (response.data && response.data.summary) {
-        return response.data.summary;
-      }
-      return response.data || 'No summary text received';
-    } catch (error) {
-      console.warn(`Could not generate AI project summary via API, returning local mock summary.`, error);
-      const list = getProjects();
-      const project = list.find(p => p.id === id);
-      return project ? project.aiSummary : 'No project data found for AI summary generation.';
-    }
+  searchProjects: async (keyword: string): Promise<Project[]> => {
+    const response = await api.get('/projects/search', {
+      params: { keyword }
+    });
+    const data = Array.isArray(response.data) ? response.data : [];
+    return data.map(mapBackendProject);
+  },
+
+  attachFile: async (projectId: string, filename: string): Promise<void> => {
+    await api.put(`/projects/${projectId}/attach`, { filename });
   }
 };

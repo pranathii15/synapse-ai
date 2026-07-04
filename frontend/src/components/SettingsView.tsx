@@ -177,7 +177,7 @@ export default function SettingsView({ settings, onUpdateSettings }: SettingsVie
   const handleResetSettings = () => {
     if (window.confirm('Are you sure you want to restore all custom and factory settings to enterprise defaults?')) {
       onUpdateSettings({
-        darkMode: true,
+        darkMode: false,
         language: 'English',
         notificationsEnabled: true,
         emailDigest: true,

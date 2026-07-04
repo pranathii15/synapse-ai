@@ -3,9 +3,9 @@ import { api } from '../lib/api';
 export const summaryService = {
   generateProjectSummary: async (projectId: string): Promise<string> => {
     try {
-      const response = await api.post(`/summaries/project`, { project_id: projectId });
-      if (response.data && response.data.summary) {
-        return response.data.summary;
+      const response = await api.get(`/project/${projectId}/summary`);
+      if (response.data && response.data.project_summary) {
+        return response.data.project_summary;
       }
       return response.data || 'Failed to generate project summary.';
     } catch (error) {

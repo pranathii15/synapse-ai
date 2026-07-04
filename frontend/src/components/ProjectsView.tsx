@@ -12,7 +12,8 @@ import {
   Users, 
   ArrowRight,
   ChevronRight,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import { Project, ProjectPriority, ProjectStatus } from '../types';
 import Button from './Button';
@@ -20,12 +21,17 @@ import Button from './Button';
 interface ProjectsViewProps {
   projects: Project[];
   onCreateProject: (project: Omit<Project, 'id' | 'progress' | 'completedTasks' | 'aiSummary'>) => void;
+  onSearchProjects?: (keyword: string) => void;
+  projectLoading?: boolean;
+  searchLoading?: boolean;
+  searchError?: string | null;
 }
 
-export default function ProjectsView({ projects, onCreateProject }: ProjectsViewProps) {
+export default function ProjectsView({ projects, onCreateProject, onSearchProjects, projectLoading = false, searchLoading = false, searchError = null }: ProjectsViewProps) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('All');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
   
   // Create Project Modal States
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -112,22 +118,67 @@ export default function ProjectsView({ projects, onCreateProject }: ProjectsView
         </Button>
       </div>
 
-      {/* Filter Options and Search */}
-      <div className="premium-card p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
-        {/* Search Input */}
-        <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 w-full md:w-80 transition-all focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 focus-within:bg-white">
-          <Search className="w-4 h-4 text-slate-400 shrink-0" />
-          <input 
-            type="text" 
-            placeholder="Search projects..." 
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="bg-transparent text-xs text-slate-700 placeholder-slate-400 focus:outline-none w-full font-semibold"
-          />
+      {projectLoading ? (
+        <div className="premium-card p-10 text-center border border-slate-200 bg-white rounded-3xl shadow-sm">
+          <Loader2 className="mx-auto w-10 h-10 text-indigo-500 animate-spin mb-4" />
+          <p className="text-sm font-semibold text-slate-700">Loading projects from backend…</p>
+          <p className="text-xs text-slate-500 mt-2">Please wait while we sync your project workspace.</p>
         </div>
+      ) : (
+        <>
+          {/* Filter Options and Search */}
+          <div className="premium-card p-4 flex flex-col md:flex-row gap-4 items-center justify-between">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (onSearchProjects) {
+                  onSearchProjects(search);
+                }
+              }}
+              className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2 w-full md:w-80 transition-all focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/10 focus-within:bg-white"
+            >
+              <Search className="w-4 h-4 text-slate-400 shrink-0" />
+              <input 
+                type="text" 
+                placeholder="Search projects..." 
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="bg-transparent text-xs text-slate-700 placeholder-slate-400 focus:outline-none w-full font-semibold"
+              />
+              <Button type="submit" variant="secondary" className="text-[11px] py-2 px-3">
+                Search
+              </Button>
+            </form>
+            <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+              {statuses.map((s) => (
+                <button
+                  key={s}
+                  onClick={() => setStatusFilter(s)}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition-all border ${
+                    statusFilter === s 
+                      ? 'bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-600/10 font-bold' 
+                      : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 border-slate-200'
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
 
-        {/* Tab-styled Filters */}
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
+          {searchLoading && (
+            <div className="flex items-center gap-2 mt-2 text-[11px] text-slate-500">
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-400" />
+              <span>Searching projects…</span>
+            </div>
+          )}
+          {searchError && (
+            <p className="text-[11px] text-rose-600 mt-2">{searchError}</p>
+          )}
+        </>
+      )}
+
+      {/* Projects Grid */}
           {statuses.map((s) => (
             <button
               key={s}

@@ -18,21 +18,7 @@ export const notificationService = {
   },
 
   markAsRead: async (id: string): Promise<Notification> => {
-    try {
-      const response = await api.put(`/notifications/${id}/read`);
-      if (response.data) {
-        const list = getNotifications();
-        const index = list.findIndex(n => n.id === id);
-        if (index !== -1) {
-          list[index] = response.data;
-          saveNotifications(list);
-        }
-        return response.data;
-      }
-    } catch (error) {
-      console.warn(`Could not update notification ${id} status via API, using local fallback.`, error);
-    }
-
+    // No backend endpoint for marking notifications as read, using local storage
     const list = getNotifications();
     const index = list.findIndex(n => n.id === id);
     if (index === -1) throw new Error('Notification not found');
@@ -42,15 +28,7 @@ export const notificationService = {
   },
 
   markAllAsRead: async (): Promise<Notification[]> => {
-    try {
-      const response = await api.put('/notifications/read-all');
-      if (Array.isArray(response.data)) {
-        saveNotifications(response.data);
-        return response.data;
-      }
-    } catch (error) {
-      console.warn('Could not mark all notifications read via API, falling back to local operations.', error);
-    }
+    // No backend endpoint for marking all notifications as read, using local storage
 
     const list = getNotifications();
     const updated = list.map(n => ({ ...n, isRead: true }));
@@ -59,11 +37,7 @@ export const notificationService = {
   },
 
   deleteNotification: async (id: string): Promise<boolean> => {
-    try {
-      await api.delete(`/notifications/${id}`);
-    } catch (error) {
-      console.warn(`Could not delete notification ${id} via API, removing from local storage.`, error);
-    }
+    // No backend endpoint for deleting notifications, using local storage
     const list = getNotifications();
     const filtered = list.filter(n => n.id !== id);
     saveNotifications(filtered);
@@ -71,17 +45,7 @@ export const notificationService = {
   },
 
   getUnreadCount: async (): Promise<number> => {
-    try {
-      const response = await api.get('/notifications/unread-count');
-      if (typeof response.data === 'number') {
-        return response.data;
-      }
-      if (response.data && typeof response.data.count === 'number') {
-        return response.data.count;
-      }
-    } catch (error) {
-      console.warn('Could not retrieve unread count via API, computing locally.', error);
-    }
+    // No backend endpoint for unread count, computing locally
     const list = getNotifications();
     return list.filter(n => !n.isRead).length;
   }

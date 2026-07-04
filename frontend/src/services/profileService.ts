@@ -5,10 +5,11 @@ import { getUserProfile, saveUserProfile } from './mockDb';
 export const profileService = {
   getProfile: async (): Promise<UserProfile> => {
     try {
-      const response = await api.get('/profile');
-      if (response.data) {
-        saveUserProfile(response.data);
-        return response.data;
+      const response = await api.get('/me');
+      const profile = response.data?.user || response.data;
+      if (profile) {
+        saveUserProfile(profile as UserProfile);
+        return profile as UserProfile;
       }
       return getUserProfile();
     } catch (error) {
@@ -18,22 +19,9 @@ export const profileService = {
   },
 
   updateProfile: async (profile: Partial<UserProfile>): Promise<UserProfile> => {
-    try {
-      const response = await api.put('/profile', profile);
-      if (response.data) {
-        saveUserProfile(response.data);
-        return response.data;
-      }
-      const current = getUserProfile();
-      const updated = { ...current, ...profile };
-      saveUserProfile(updated);
-      return updated;
-    } catch (error) {
-      console.warn('Could not update profile via API, using local fallback.', error);
-      const current = getUserProfile();
-      const updated = { ...current, ...profile };
-      saveUserProfile(updated);
-      return updated;
-    }
+    const current = getUserProfile();
+    const updated = { ...current, ...profile };
+    saveUserProfile(updated);
+    return updated;
   }
 };

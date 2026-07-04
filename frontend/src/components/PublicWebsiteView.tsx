@@ -116,8 +116,8 @@ export default function PublicWebsiteView({ onLogin }: PublicWebsiteViewProps) {
 
   // Login Modal
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [loginEmail, setLoginEmail] = useState('marcus.vance@synapse.ai');
-  const [loginPassword, setLoginPassword] = useState('••••••••');
+  const [loginEmail, setLoginEmail] = useState('pranathi@example.com');
+  const [loginPassword, setLoginPassword] = useState('123456');
   const [rememberMe, setRememberMe] = useState(true);
 
   const faqRef = useRef<HTMLDivElement>(null);
@@ -243,13 +243,12 @@ export default function PublicWebsiteView({ onLogin }: PublicWebsiteViewProps) {
   };
 
   const handleDemoLogin = () => {
-    setIsLoginModalOpen(false);
+    const normalizedEmail = (loginEmail || '').trim() || 'pranathi@example.com';
+    const normalizedPassword = (loginPassword || '').trim() && loginPassword !== '••••••••' ? loginPassword : '123456';
 
-    onLogin(
-        loginEmail,
-        loginPassword
-    );
-};
+    setIsLoginModalOpen(false);
+    onLogin(normalizedEmail, normalizedPassword);
+  };
 
   return (
     <div className="min-h-screen bg-white text-[#1E293B] font-sans flex flex-col justify-between overflow-x-hidden select-none text-left relative">

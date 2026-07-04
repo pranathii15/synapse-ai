@@ -4,44 +4,15 @@ import { getChats, saveChats } from './mockDb';
 
 export const chatHistoryService = {
   getConversations: async (): Promise<ChatConversation[]> => {
-    try {
-      const response = await api.get('/chats');
-      if (Array.isArray(response.data)) {
-        saveChats(response.data);
-        return response.data;
-      }
-      return getChats();
-    } catch (error) {
-      console.warn('Could not fetch chats via API, returning local storage conversations.', error);
-      return getChats();
-    }
+    return getChats();
   },
 
   getConversationById: async (id: string): Promise<ChatConversation | undefined> => {
-    try {
-      const response = await api.get(`/chats/${id}`);
-      if (response.data) {
-        return response.data;
-      }
-    } catch (error) {
-      console.warn(`Could not get conversation ${id} via API, querying local store.`, error);
-    }
     const list = getChats();
     return list.find(c => c.id === id);
   },
 
   createConversation: async (title: string, featureUsed: string = 'General AI'): Promise<ChatConversation> => {
-    try {
-      const response = await api.post('/chats', { title, featureUsed });
-      if (response.data) {
-        const list = getChats();
-        list.unshift(response.data);
-        saveChats(list);
-        return response.data;
-      }
-    } catch (error) {
-      console.warn('Could not create conversation thread via API, using local storage instead.', error);
-    }
 
     const list = getChats();
     const newChat: ChatConversation = {
@@ -63,20 +34,16 @@ export const chatHistoryService = {
     text: string,
     references?: string[]
   ): Promise<ChatMessage> => {
+    // Save to backend chat history
     try {
-      const response = await api.post(`/chats/${conversationId}/messages`, { sender, text, references });
-      if (response.data) {
-        const list = getChats();
-        const index = list.findIndex(c => c.id === conversationId);
-        if (index !== -1) {
-          list[index].messages.push(response.data);
-          list[index].lastMessage = text.length > 60 ? text.substring(0, 57) + '...' : text;
-          saveChats(list);
-        }
-        return response.data;
-      }
+      await api.post('/chat/history', { 
+        conversation_id: conversationId,
+        sender, 
+        text, 
+        references 
+      });
     } catch (error) {
-      console.warn(`Could not log chat message to API for ${conversationId}, applying local storage update.`, error);
+      console.warn(`Could not save chat message to backend, using local fallback.`, error);
     }
 
     const list = getChats();

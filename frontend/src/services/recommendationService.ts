@@ -11,9 +11,13 @@ export interface RecommendationResult {
 export const recommendationService = {
   getRecommendations: async (requirements: string, skills: string[], minExperienceYears: number): Promise<RecommendationResult[]> => {
     try {
-      const response = await api.post('/recommendations', { requirements, skills, min_experience_years: minExperienceYears });
-      if (Array.isArray(response.data)) {
-        return response.data;
+      const response = await api.post('/recommend/team', { required_skills: skills });
+      if (response.data?.recommended_members && Array.isArray(response.data.recommended_members)) {
+        return response.data.recommended_members.map((member: any) => ({
+          member,
+          score: 75,
+          reason: 'Recommended based on skill match and availability'
+        }));
       }
     } catch (error) {
       console.warn('Could not post recommendations query via API, matching via local heuristic fallback instead.', error);

@@ -4,31 +4,10 @@ import { getDocuments, saveDocuments } from './mockDb';
 
 export const documentService = {
   getDocuments: async (): Promise<Document[]> => {
-    try {
-      const response = await api.get('/documents');
-      if (Array.isArray(response.data)) {
-        saveDocuments(response.data);
-        return response.data;
-      }
-      return getDocuments();
-    } catch (error) {
-      console.warn('Could not fetch documents via API, using stored documents.', error);
-      return getDocuments();
-    }
+    return getDocuments();
   },
 
   uploadDocument: async (name: string, sizeBytes: number, category: string): Promise<Document> => {
-    try {
-      const response = await api.post('/documents', { name, size_bytes: sizeBytes, category });
-      if (response.data) {
-        const list = getDocuments();
-        list.push(response.data);
-        saveDocuments(list);
-        return response.data;
-      }
-    } catch (error) {
-      console.warn('Could not upload/ingest document metadata via API, using local mock.', error);
-    }
 
     const list = getDocuments();
     const sizeStr = (sizeBytes / (1024 * 1024)).toFixed(1) + ' MB';
@@ -49,15 +28,6 @@ export const documentService = {
   },
 
   semanticSearch: async (query: string): Promise<Document[]> => {
-    try {
-      const response = await api.get('/documents/search', { params: { query } });
-      if (Array.isArray(response.data)) {
-        return response.data;
-      }
-    } catch (error) {
-      console.warn('Could not perform semantic search via API, executing local fuzzy fallback.', error);
-    }
-
     const list = getDocuments();
     if (!query.trim()) return list;
     const lower = query.toLowerCase();
@@ -70,7 +40,7 @@ export const documentService = {
 
   askRag: async (documentId: string, question: string): Promise<{ answer: string, references: string[] }> => {
     try {
-      const response = await api.post(`/documents/${documentId}/ask`, { question });
+      const response = await api.get(`/pdf/chat`, { params: { question } });
       if (response.data) {
         return {
           answer: response.data.answer || response.data.text || '',
@@ -78,7 +48,7 @@ export const documentService = {
         };
       }
     } catch (error) {
-      console.warn(`Could not run RAG chat on document ${documentId} via API, triggering local simulation.`, error);
+      console.warn(`Could not run RAG chat via API, triggering local simulation.`, error);
     }
 
     const list = getDocuments();

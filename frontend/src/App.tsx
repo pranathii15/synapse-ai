@@ -131,28 +131,38 @@ export default function App() {
   const [chats, setChats] = useState<ChatConversation[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [projectLoading, setProjectLoading] = useState<boolean>(false);
+  const [projectError, setProjectError] = useState<string | null>(null);
+  const [projectSearchLoading, setProjectSearchLoading] = useState<boolean>(false);
+  const [projectSearchError, setProjectSearchError] = useState<string | null>(null);
 
   // Selected Active Chat State
   const [activeChat, setActiveChat] = useState<ChatConversation | null>(null);
 
-  // Sync Dark Canvas Theme instantly with the document element
+  // Sync the applied theme instantly with the document element.
   useEffect(() => {
-    if (settings) {
-      if (settings.darkMode) {
-        document.documentElement.classList.add('dark');
-        document.documentElement.style.colorScheme = 'dark';
-      } else {
-        document.documentElement.classList.remove('dark');
-        document.documentElement.style.colorScheme = 'light';
-      }
-    }
+    const isDarkMode = settings?.darkMode ?? false;
+    document.documentElement.classList.toggle('dark', isDarkMode);
+    document.documentElement.style.colorScheme = isDarkMode ? 'dark' : 'light';
   }, [settings?.darkMode]);
 
   // Load all data from API services
   const loadAllData = async () => {
+    setProjectLoading(true);
+    setProjectError(null);
+
+    let projs: Project[] = [];
     try {
-      const [projs, tm, tsk, docs, notifs, conversations, userProf, userSettings] = await Promise.all([
-        projectService.getProjects(),
+      projs = await projectService.getProjects();
+      setProjects(projs);
+    } catch (error) {
+      console.error('Could not load projects from backend.', error);
+      setProjectError('Unable to load projects at this time.');
+      setProjects([]);
+    }
+
+    try {
+      const [tm, tsk, docs, notifs, conversations, userProf, userSettings] = await Promise.all([
         teamService.getTeam(),
         taskService.getTasks(),
         documentService.getDocuments(),
@@ -162,7 +172,6 @@ export default function App() {
         authService.getSettings()
       ]);
 
-      setProjects(projs);
       setTeam(tm);
       setTasks(tsk);
       setDocuments(docs);
@@ -174,9 +183,7 @@ export default function App() {
       setProfile(userProf);
       setSettings(userSettings);
     } catch (error) {
-      console.error('Failed to reload live backend datasets, loading local store values.', error);
-      // fallback to local stores
-      setProjects(getProjects());
+      console.error('Failed to reload supplementary backend datasets, loading local store values.', error);
       setTeam(getTeam());
       setTasks(getTasks());
       setDocuments(getDocuments());
@@ -188,6 +195,8 @@ export default function App() {
       }
       setProfile(getUserProfile());
       setSettings(getSettings());
+    } finally {
+      setProjectLoading(false);
     }
   };
 
@@ -291,13 +300,33 @@ export default function App() {
     const created = await projectService.createProject(newProjData);
     await loadAllData();
     showToast(`Project "${created.name}" created successfully!`, 'success');
-    // Add positive corporate notification
     handleAddNotification(
       'New Project Created',
       `Project "${created.name}" has been created successfully. You can now assign team members to it.`,
       'Medium',
       'Project'
     );
+  };
+
+  const handleSearchProjects = async (keyword: string) => {
+    setProjectSearchLoading(true);
+    setProjectSearchError(null);
+
+    if (!keyword.trim()) {
+      await loadAllData();
+      setProjectSearchLoading(false);
+      return;
+    }
+
+    try {
+      const results = await projectService.searchProjects(keyword);
+      setProjects(results);
+    } catch (error) {
+      console.error('Project search failed.', error);
+      setProjectSearchError('Search failed. Please try again.');
+    } finally {
+      setProjectSearchLoading(false);
+    }
   };
 
   // Task Creation Handler
@@ -653,6 +682,10 @@ export default function App() {
                   <ProjectsView 
                     projects={projects}
                     onCreateProject={handleCreateProject}
+                    onSearchProjects={handleSearchProjects}
+                    projectLoading={projectLoading}
+                    searchLoading={projectSearchLoading}
+                    searchError={projectSearchError || projectError}
                   />
                 )}
 
