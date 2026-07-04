@@ -1,0 +1,371 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", sans-serif; /* Standardizing display font to premium Inter for a clean Apple/Notion feel */
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Premium Light Enterprise Palette */
+  --color-brand-bg: #FFFFFF;
+  --color-brand-navy: #23395B;
+  --color-brand-card: rgba(255, 255, 255, 0.75);
+  --color-brand-border: #E5E7EB;
+
+  /* Primary Theme Accent (Mid Navy) */
+  --color-brand-blue: #4F7CAC;
+  /* Secondary Theme Accent (Accent Blue) */
+  --color-brand-purple: #23395B;
+  
+  /* Additional Accents matching the guidelines */
+  --color-brand-cyan: #7FB7E8;  /* Sky Blue / Info */
+  --color-brand-green: #3CB371; /* Success (Emerald green) */
+  --color-brand-orange: #F4B942;/* Warning / Amber */
+  --color-brand-pink: #E76F51;  /* Danger / Rose */
+}
+
+/* Custom Scrollbars for Light Mode */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F7F8FA;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.25);
+}
+
+/* Light Mode Glassmorphism Panel styles */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 40px rgba(15, 23, 42, 0.08);
+}
+
+.premium-card {
+  background-color: #FFFFFF;
+  border-radius: 24px; /* Standard 24px radius per guidelines */
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.03), 0 1px 3px rgba(15, 23, 42, 0.02);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-card-hover {
+  cursor: pointer;
+}
+
+.premium-card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.06);
+  border-color: rgba(79, 125, 255, 0.15);
+}
+
+.dark .premium-card {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+.dark .premium-card-hover:hover {
+  border-color: rgba(79, 125, 255, 0.3) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35) !important;
+}
+
+.glass-panel-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(79, 124, 172, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 48px rgba(15, 23, 42, 0.12);
+}
+
+.glass-card-blue {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(79, 124, 172, 0.15);
+}
+
+.glass-card-purple {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(35, 57, 91, 0.15);
+}
+
+.glass-card-cyan {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(127, 183, 232, 0.20);
+}
+
+.glass-card-green {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(60, 179, 113, 0.20);
+}
+
+/* Animations - Custom transition system resembling Apple's UI */
+.transition-apple {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Active Indicator Animation */
+@keyframes slideIn {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Infinite Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 25s linear infinite;
+}
+
+/* Pause animation on hover */
+.marquee-container:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .animate-marquee {
+    animation-duration: 40s;
+  }
+}
+
+/* ========================================================
+   APPLICATION-WIDE THEME SYSTEM (LIGHT/DARK)
+   ======================================================== */
+
+:root {
+  --color-bg-app: #F7F8FA;
+  --color-sidebar-app: #0F172A; /* Original navy sidebar */
+  --color-card-app: #FFFFFF;
+  --color-border-app: #E5E7EB;
+  --color-text-primary-app: #1E293B;
+  --color-text-secondary-app: #64748B;
+  --color-text-muted-app: #94A3B8;
+  --color-brand-app: #4F7DFF;
+  --color-brand-hover-app: #2563EB;
+}
+
+.dark {
+  --color-bg-app: #0F172A;
+  --color-sidebar-app: #111827;
+  --color-card-app: #1E293B;
+  --color-border-app: #334155;
+  --color-text-primary-app: #F8FAFC;
+  --color-text-secondary-app: #CBD5E1;
+  --color-text-muted-app: #94A3B8;
+  --color-brand-app: #4F7DFF;
+  --color-brand-hover-app: #2563EB;
+}
+
+/* Enable selector-based dark mode in Tailwind v4 */
+@variant dark (&:where(.dark, .dark *));
+
+/* Complete fade transition across backgrounds, borders and text colors */
+html, body, main, header, aside, div, p, span, h1, h2, h3, h4, h5, h6, select, input, textarea, button {
+  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+  transition-duration: 250ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Overriding body and root canvas background */
+.dark body,
+.dark #root {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+}
+
+/* Main content viewport override */
+.dark main,
+.dark .bg-\[\#F7F8FA\],
+.dark .bg-slate-50 {
+  background-color: #0F172A !important;
+}
+
+/* Sidebar overrides */
+.dark aside,
+.dark .hidden.md\:flex.flex-col.h-screen {
+  background-color: #111827 !important;
+  border-color: #334155 !important;
+}
+
+.dark .border-slate-800 {
+  border-color: #334155 !important;
+}
+
+.dark .bg-\[\#0F172A\] {
+  background-color: #111827 !important;
+}
+
+/* Header overrides */
+.dark header,
+.dark .sticky.top-0 {
+  background-color: rgba(17, 24, 39, 0.8) !important;
+  border-color: #334155 !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Cards, dialogs, dropdowns & bento blocks in dark mode */
+.dark .bg-white,
+.dark .bg-white\/80,
+.dark .bg-white\/75,
+.dark .glass-panel,
+.dark .bg-slate-50\/50,
+.dark .bg-slate-50\/60,
+.dark .bg-slate-50\/45,
+.dark .bg-\[\#FFFFFF\],
+.dark .bg-\[\#FFFFFF\]\/80,
+.dark .bg-\[\#F7F8FA\]\/60,
+.dark .bg-\[\#F7F8FA\]\/45,
+.dark .p-5.rounded-2xl.border.bg-white,
+.dark [role="dialog"],
+.dark .bg-[#F7F8FA]/60,
+.dark .glass-card-blue,
+.dark .glass-card-purple,
+.dark .glass-card-cyan,
+.dark .glass-card-green {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+/* Inner containers and rows */
+.dark .bg-[#F7F8FA]/60,
+.dark .bg-[#F7F8FA]/45 {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+}
+
+/* Hover background states in dark mode */
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-slate-100:hover,
+.dark .hover\:bg-[#F7F8FA]:hover,
+.dark .hover\:bg-slate-50\/50:hover,
+.dark .hover\:bg-slate-100\/40:hover {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: #F8FAFC !important;
+}
+
+/* Borders across elements */
+.dark .border,
+.dark .border-slate-200,
+.dark .border-slate-200\/80,
+.dark .border-slate-100,
+.dark .border-slate-300,
+.dark .border-\[\#E5E7EB\],
+.dark .divide-slate-100 > :not([hidden]) ~ :not([hidden]),
+.dark .divide-slate-200 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #334155 !important;
+}
+
+/* Primary texts in dark mode */
+.dark .text-slate-800,
+.dark .text-slate-900,
+.dark .text-gray-900,
+.dark .text-\[\#1E293B\],
+.dark .text-slate-700,
+.dark .text-slate-800\/90 {
+  color: #F8FAFC !important;
+}
+
+/* Secondary texts in dark mode */
+.dark .text-slate-600,
+.dark .text-slate-500,
+.dark .text-gray-600,
+.dark .text-gray-500,
+.dark .text-\[\#64748B\] {
+  color: #CBD5E1 !important;
+}
+
+/* Muted / quiet texts in dark mode */
+.dark .text-slate-400,
+.dark .text-gray-400,
+.dark .text-slate-400\/80 {
+  color: #94A3B8 !important;
+}
+
+/* Form input, select, option fields in dark mode */
+.dark select,
+.dark input[type="text"],
+.dark input[type="search"],
+.dark input[type="password"],
+.dark textarea {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+.dark option {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+}
+
+/* Table element styling in dark mode */
+.dark table,
+.dark thead,
+.dark tbody,
+.dark tr,
+.dark th,
+.dark td {
+  border-color: #334155 !important;
+}
+
+.dark thead {
+  background-color: #111827 !important;
+}
+
+.dark tr:hover {
+  background-color: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Scrollbars for dark mode */
+.dark ::-webkit-scrollbar-track {
+  background: #0F172A;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* SVG Text elements (charts) in dark mode */
+.dark svg text {
+  fill: #CBD5E1 !important;
+}
+
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: #334155 !important;
+}
+
+.dark .recharts-default-tooltip {
+  background-color: #1E293B !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+

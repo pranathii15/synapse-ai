@@ -1,0 +1,6 @@
+{
+  "name": "SynapseAI",
+  "description": "Enterprise AI Workspace - A premium, secure platform for project management, AI assistant, and meeting intelligence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,22 @@
+{
+  "name": "SynapseAI - Enterprise AI Workspace",
+  "short_name": "SynapseAI",
+  "description": "Secure, enterprise-grade AI-powered workspace for document processing, meeting intelligence, project management, and team resourcing.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#23395B",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

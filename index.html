@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary SEO Metadata -->
+    <title>SynapseAI - Secure Enterprise AI Workspace</title>
+    <meta name="description" content="Secure, enterprise-grade AI-powered workspace for project management, document processing, meeting intelligence, and team resource allocation." />
+    <meta name="keywords" content="Enterprise AI, RAG Workspace, Project Management, FAISS Search, Meeting Intelligence" />
+    <meta name="author" content="SynapseAI Engineering" />
+    <meta name="theme-color" content="#23395B" />
+    
+    <!-- OpenGraph Metadata (Facebook, LinkedIn, etc.) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="SynapseAI - Secure Enterprise AI Workspace" />
+    <meta property="og:description" content="Secure, enterprise-grade AI-powered workspace for project management, document processing, meeting intelligence, and team resource allocation." />
+    <meta property="og:site_name" content="SynapseAI" />
+    <meta property="og:url" content="https://synapse.ai/" />
+    <meta property="og:image" content="/logo.svg" />
+    
+    <!-- Twitter Card Metadata -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SynapseAI - Secure Enterprise AI Workspace" />
+    <meta name="twitter:description" content="Secure, enterprise-grade AI-powered workspace for project management, document processing, meeting intelligence, and team resource allocation." />
+    <meta name="twitter:image" content="/logo.svg" />
+
+    <!-- Favicon and PWA Manifest Links -->
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/logo.svg" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Register Service Worker for PWA -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('sw.js registered successfully: ', registration.scope);
+            })
+            .catch((err) => {
+              console.log('sw.js registration failed: ', err);
+            });
+        });
+      }
+    </script>
+  </body>
+</html>
+
